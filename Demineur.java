@@ -9,7 +9,7 @@ public class Demineur {
 	public class champsMine {
 		final int VIDE = -1; // marque une case vide 
 		final int MINE = -2; //marque une case minée
-		private int grille[][];
+		private int grille[][];	//j'ai mis des private parce que je pense pas qu'on en aura besoin en dehors de nos classes
 		private int taille;
 		private int cases_decouvertes; 
 		private int nb_mines;
