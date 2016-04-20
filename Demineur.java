@@ -2,8 +2,8 @@
 public class Demineur {
   // Constantes pour la lisibilité
   final static int MINE = -1;
-  final static int LARGEUR_CASE = 11; // 10 pixels plus un de bordure
-  final static int HAUTEUR_CASE = 11;
+  final static int LARGEUR_CASE = 29; // 29 pixels plus 2 de bordure
+  final static int HAUTEUR_CASE = 29;
 
   // Types agrégés
   
