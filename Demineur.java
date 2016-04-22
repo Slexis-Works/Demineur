@@ -1,16 +1,16 @@
-// DÃ©veloppeurs : Alexis Cabodi et Mohamed Lakhal ; Groupe de TP 5 (I4-CMI) ; Sujet nÂ°4
+﻿// Développeurs : Alexis Cabodi et Mohamed Lakhal ; Groupe de TP 5 (I4-CMI) ; Sujet n°4
 public class Demineur {
-  // Constantes pour la lisibilitÃ©
+  // Constantes pour la lisibilité
   final static int MINE = -1;
   final static int LARGEUR_CASE = 29; // 29 pixels plus 2 de bordure
   final static int HAUTEUR_CASE = 29;
 
-  // Types agrÃ©gÃ©s
+  // Types agrégés
   
   /**
    * Une case du plateau
    * - contenu : nombre indiquant si la case contient une mine ou sinon le nombre de mines adjacentes
-   * - visible : indique si la case est dÃ©couverte ou pas
+   * - visible : indique si la case est découverte ou pas
    * - drapeau : indique si la case a un drapeau ou non
    */
   static class Case {
@@ -23,7 +23,7 @@ public class Demineur {
   
   // Fonctions
   /**
-   * Initialisation de la fenÃªtre en prenant en compte le nombre de grille
+   * Initialisation de la fenêtre en prenant en compte le nombre de grille
    *
    * @param nc nombre de colonnes de la grille
    * @param nl nombre de lignes de la grille
@@ -31,7 +31,7 @@ public class Demineur {
   static void initialiserFenetre(int nc, int nl) {
     int tailleX = nc * (LARGEUR_CASE+2);
     int tailleY = nl * (HAUTEUR_CASE+2);
-    EcranGraphique.init(50, 50, tailleX+50, tailleY+90, tailleX, tailleY, "DÃ©mineur");
+    EcranGraphique.init(50, 50, tailleX+50, tailleY+90, tailleX, tailleY, "Démineur");
   }
 
   static Case[][] initialiserGrille(int nc, int nl, int nm) {
@@ -137,14 +137,14 @@ public class Demineur {
   public static void main(String[] args) {
    int nl, nc, nm;
     Case [][] grille;
-    Ecran.afficherln("Bienvenue dans le jeu du dÃ©mineur !\nVous allez dÃ©finir votre partie :");
+    Ecran.afficherln("Bienvenue dans le jeu du démineur !\nVous allez définir votre partie :");
     do {
       Ecran.afficher("Nombre de lignes : ");
       nl = Clavier.saisirInt();
       if (nl < 1) {
         Ecran.afficherln("La taille est trop petite. Merci de mettre une taille d'au moins 1.");
       } else if (nl > 50) {
-        Ecran.afficherln("La taille est trop grande. Merci de ne pas dÃ©passer 50.");
+        Ecran.afficherln("La taille est trop grande. Merci de ne pas dépasser 50.");
       }
     } while(nl < 1 || nl > 50);
   
@@ -154,7 +154,7 @@ public class Demineur {
       if (nc < 1) {
         Ecran.afficherln("La taille est trop petite. Merci de mettre une taille d'au moins 1.");
       } else if (nc > 80) {
-        Ecran.afficherln("La taille est trop grande. Merci de ne pas dÃ©passer 80.");
+        Ecran.afficherln("La taille est trop grande. Merci de ne pas dépasser 80.");
       }
     } while(nc < 1 || nc > 80);
   
