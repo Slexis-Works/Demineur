@@ -1,6 +1,6 @@
-// D�veloppeurs : Alexis Cabodi et Mohamed Lakhal ; Groupe de TP 5 (I4-CMI) ; Sujet n�4
+// Développeurs : Alexis Cabodi et Mohamed Lakhal ; Groupe de TP 5 (I4-CMI) ; Sujet n°4
 public class Demineur {
-  // Constantes pour la lisibilit�
+  // Constantes pour la lisibilité
   final static int MINE = -1;
   final static int LARGEUR_CASE = 29; // 29 pixels plus 2 de bordure
   final static int HAUTEUR_CASE = 29;
@@ -9,12 +9,12 @@ public class Demineur {
   final static int GAGNEE = 1;
   final static int PERDUE = 2;
 
-  // Types agr�g�s
+  // Types agrégés
   
   /**
    * Une case du plateau
    * - contenu : nombre indiquant si la case contient une mine ou sinon le nombre de mines adjacentes
-   * - visible : indique si la case est d�couverte ou pas
+   * - visible : indique si la case est découverte ou pas
    * - drapeau : indique si la case a un drapeau ou non
    */
   static class Case {
@@ -27,7 +27,7 @@ public class Demineur {
   
   // Fonctions
   /**
-   * Initialisation de la fen�tre en prenant en compte le nombre de grille
+   * Initialisation de la fenêtre en prenant en compte le nombre de grille
    *
    * @param nc nombre de colonnes de la grille
    * @param nl nombre de lignes de la grille
@@ -35,7 +35,7 @@ public class Demineur {
   static void initialiserFenetre(int nc, int nl) {
     int tailleX = 10 + nc * (LARGEUR_CASE+1);
     int tailleY = 30 + nl * (HAUTEUR_CASE+1);
-    EcranGraphique.init(50, 50, tailleX+50, tailleY+90, tailleX, tailleY, "D�mineur");
+    EcranGraphique.init(50, 50, tailleX+50, tailleY+90, tailleX, tailleY, "Démineur");
     EcranGraphique.setClearColor(0, 0, 0);
   }
 
@@ -142,7 +142,7 @@ public class Demineur {
             // Draw image ou cercle rouge
           } else if (grille[c][l].contenu > 0) {
             EcranGraphique.drawString(15+(LARGEUR_CASE+1)*c, 26+(HAUTEUR_CASE+1)*l, EcranGraphique.COLABA8x13, ""+grille[c][l].contenu);
-          } // "0" non affich�s
+          } // "0" non affichés
         } else if (grille[c][l].drapeau) {
           EcranGraphique.setColor(240, 0, 0);
           EcranGraphique.fillRect(6+(LARGEUR_CASE+1)*c, 6+(HAUTEUR_CASE+1)*l, LARGEUR_CASE-1, HAUTEUR_CASE-1);
@@ -156,25 +156,25 @@ public class Demineur {
   }
   
   /**
-   * Fonction qui va attendre un clic du joueur et agir en cons�quence
-   * si le clic sert � quelque chose.
+   * Fonction qui va attendre un clic du joueur et agir en conséquence
+   * si le clic sert à quelque chose.
    */
   static void traiterEntree(int nc, int nl, Case [][] grille) {
     while (EcranGraphique.getMouseState()!=2) {
       EcranGraphique.wait(10); // Ne pas surcharger le processeur
     }
-    // getMouseButton pour savoir si c'�tait un clic gauche ou droit
+    // getMouseButton pour savoir si c'était un clic gauche ou droit
     // getMouseX|Y pour la position
-    // faire le calcul qui d�termine la cellule cliqu�e (au mieux on �vite les bordures)
-    // si y'a un drapal on emp�che le clic gauche
-    // si clic droit, on inverse l'�tat du drapeau
-    // si on peut d�couvrir la case, appeler decouvrirCase
+    // faire le calcul qui détermine la cellule cliquée (au mieux on évite les bordures)
+    // si y'a un drapal on empêche le clic gauche
+    // si clic droit, on inverse l'état du drapeau
+    // si on peut découvrir la case, appeler decouvrirCase
     
   }
   
   /**
-   * Fonction qui permet de d�couvrir une case
-   * et de continuer de mani�re r�cursive s'il n'y a pas de mines
+   * Fonction qui permet de découvrir une case
+   * et de continuer de manière récursive s'il n'y a pas de mines
    */
   static void decouvrirCase(int nc, int nl, Case [][] grille, int c, int l) {
     grille[c][l].visible = true;
@@ -185,15 +185,15 @@ public class Demineur {
       if (l < nl-1 && !grille[c][l+1].visible && grille[c][l+1].contenu != MINE)
         decouvrirCase(nc, nl, grille, c, l+1); // Continuer en bas
       if (c > 0 && !grille[c-1][l].visible && grille[c-1][l].contenu != MINE)
-        decouvrirCase(nc, nl, grille, c-1, l); // Continuer � gauche
+        decouvrirCase(nc, nl, grille, c-1, l); // Continuer à gauche
       if (c < nc-1 && !grille[c+1][l].visible && grille[c+1][l].contenu != MINE)
-        decouvrirCase(nc, nl, grille, c+1, l); // Continuer � droite
+        decouvrirCase(nc, nl, grille, c+1, l); // Continuer à droite
     }
   }
   
   /**
-   * Fonction pour tester si le joueur a termin� sa partie ou non.
-   * Si oui, on pr�cise si elle est gagn�e ou perdue.
+   * Fonction pour tester si le joueur a terminé sa partie ou non.
+   * Si oui, on précise si elle est gagnée ou perdue.
    */
   static int statutGrille(int nc, int nl, Case [][] grille) {
     boolean aMineDecouverte = false, aCasePasDecouverte = false;
@@ -235,14 +235,14 @@ public class Demineur {
     int nl, nc, nm;
     Case [][] grille;
     int statutPartie = 0;
-    Ecran.afficherln("Bienvenue dans le jeu du d�mineur !\nVous allez d�finir votre partie :");
+    Ecran.afficherln("Bienvenue dans le jeu du démineur !\nVous allez définir votre partie :");
     do {
       Ecran.afficher("Nombre de lignes : ");
       nl = Clavier.saisirInt();
       if (nl < 1) {
         Ecran.afficherln("La taille est trop petite. Merci de mettre une taille d'au moins 1.");
       } else if (nl > 50) {
-        Ecran.afficherln("La taille est trop grande. Merci de ne pas d�passer 50.");
+        Ecran.afficherln("La taille est trop grande. Merci de ne pas dépasser 50.");
       }
     } while(nl < 1 || nl > 50);
   
@@ -252,7 +252,7 @@ public class Demineur {
       if (nc < 1) {
         Ecran.afficherln("La taille est trop petite. Merci de mettre une taille d'au moins 1.");
       } else if (nc > 80) {
-        Ecran.afficherln("La taille est trop grande. Merci de ne pas d�passer 80.");
+        Ecran.afficherln("La taille est trop grande. Merci de ne pas dépasser 80.");
       }
     } while(nc < 1 || nc > 80);
   
