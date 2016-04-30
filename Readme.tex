@@ -1,0 +1,84 @@
+\documentclass[a4paper, 12pt, oneside]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern} % Enlève plein de warnings :D et permet le tt gras
+\usepackage[french]{babel}
+
+% \usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+% \usepackage{mathrsfs}
+
+\usepackage{hyperref}
+%\usepackage{scrextend}
+
+\usepackage{graphicx}
+
+\usepackage{color}
+\usepackage{listings}
+\definecolor{listinggray}{gray}{0.9}
+\definecolor{lbcolor}{rgb}{0.95,0.95,0.95}
+\lstset{
+	backgroundcolor=\color{lbcolor},
+	tabsize=4,
+	rulecolor=,
+	language=Java,
+	basicstyle=\scriptsize\ttfamily,
+	upquote=false,
+	aboveskip={.5\baselineskip},
+	columns=fixed,
+	showstringspaces=false,
+	extendedchars=true,
+	showspaces=false,
+	breaklines=true,
+	prebreak = \raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}},
+	frame=single,
+	showtabs=false,
+	identifierstyle=\ttfamily,
+	keywordstyle=\bfseries\color[rgb]{0,0,1},
+	commentstyle=\color[rgb]{0.133,0.545,0.133},
+	stringstyle=\color[rgb]{0.627,0.126,0.941},
+}
+
+% ---------------
+% Commmandes
+% ---------------
+
+% Argument obligatoire : nom du type agrégé
+\newenvironment{typeag}[1][]{\noindent \textbf{type} \texttt{#1} \{\begin{addmargin}[2em]{0em}}{\end{addmargin}\}}
+% Arguments obligatoires : Nom — Type — Description
+\newcommand{\variable}[3]{\noindent \texttt{#1} : \textit{#2} --- #3}
+
+% Algorithme informel % Ou \scriptsize
+\newenvironment{algoinfo}{\begin{itemize}\small}{\end{itemize}}
+
+% \renewcommand\arraystretch{1.2}
+
+\newcommand{\oeuvre}[1]{\textit{#1}}
+
+\newcommand{\lien}[2]{\noindent #1 :\\{\small\url{#2}}}
+
+% ---------------
+% Main
+% ---------------
+\title{Manuel du programme Démineur}
+\author{Mohamed \bsc{Lakhal}\\Alexis \bsc{Cabodi}}
+\date{Révision du\\\today}
+
+\begin{document}
+\maketitle
+\newpage
+\tableofcontents
+\newpage
+
+\section{Mode d'emploi}
+
+\newpage
+\section{Développement}
+\subsection{Résolution des problèmes}
+
+\subsection{Répartition des tâches}
+
+\end{document}
