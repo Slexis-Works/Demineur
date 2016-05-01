@@ -27,18 +27,23 @@ public class Demineur {
   
   // Fonctions
   /**
-   * Initialisation de la fenêtre en prenant en compte le nombre de grille
+   * Initialisation de la fenêtre en prenant en compte le nombre de cases et de la place pour le message de fin de partie
    *
    * @param nc nombre de colonnes de la grille
    * @param nl nombre de lignes de la grille
    */
   static void initialiserFenetre(int nc, int nl) {
-    int tailleX = 10 + nc * (LARGEUR_CASE+1);
+    int tailleX = 200 + nc * (LARGEUR_CASE+1);
     int tailleY = 30 + nl * (HAUTEUR_CASE+1);
     EcranGraphique.init(50, 50, tailleX+50, tailleY+90, tailleX, tailleY, "Démineur");
     EcranGraphique.setClearColor(0, 0, 0);
   }
-
+	
+  /**
+   * Initialisation de la grille en prenant en compte le nombre de cases et de mines
+   * Tirage aléatoire des coordonnées des cases minées
+   * Comptage des mines adjacentes aux cases (x, y)
+   */
   static Case[][] initialiserGrille(int nc, int nl, int nm) {
     Case[][] grille = new Case[nc][nl] ;    
     for (int l = 0; l < nl; l++) {
@@ -129,7 +134,10 @@ public class Demineur {
     return grille;
   }
   
-  static void afficher(int nc, int nl, Case [][] grille) {
+  /**
+   * Affichage avec la classe EcranGraphique (drapeau, grille, case) selon leur visibilité
+   */
+  static void afficher(int nc, int nl, Case [][] grille, int[][] image) {
     EcranGraphique.clear();
     EcranGraphique.setColor(0, 255, 0);
     EcranGraphique.drawRect(4, 4, 1+(LARGEUR_CASE+1)*nc, 1+(HAUTEUR_CASE+1)*nl);
@@ -144,32 +152,54 @@ public class Demineur {
             EcranGraphique.drawString(15+(LARGEUR_CASE+1)*c, 26+(HAUTEUR_CASE+1)*l, EcranGraphique.COLABA8x13, ""+grille[c][l].contenu);
           } // "0" non affichés
         } else if (grille[c][l].drapeau) {
-          EcranGraphique.setColor(240, 0, 0);
-          EcranGraphique.fillRect(6+(LARGEUR_CASE+1)*c, 6+(HAUTEUR_CASE+1)*l, LARGEUR_CASE-1, HAUTEUR_CASE-1);
+          /*EcranGraphique.setColor(240, 0, 0);
+          EcranGraphique.fillRect(6+(LARGEUR_CASE+1)*c, 6+(HAUTEUR_CASE+1)*l, LARGEUR_CASE-1, HAUTEUR_CASE-1);*/
+          EcranGraphique.drawImage(6+(LARGEUR_CASE+1)*c, 6+(HAUTEUR_CASE+1)*l, image);
         } else { // Non visible, "cache" bleu
           EcranGraphique.setColor(0, 0, 240);
           EcranGraphique.fillRect(6+(LARGEUR_CASE+1)*c, 6+(HAUTEUR_CASE+1)*l, LARGEUR_CASE-1, HAUTEUR_CASE-1);
         }
       }
     }
+    EcranGraphique.setColor(0, 255, 0);
+    EcranGraphique.drawString(30 + nc * (LARGEUR_CASE+1), 30, EcranGraphique.COLABA8x13, "JEU : DEMINEUR");
     EcranGraphique.flush();
   }
   
   /**
    * Fonction qui va attendre un clic du joueur et agir en conséquence
-   * si le clic sert à quelque chose.
    */
   static void traiterEntree(int nc, int nl, Case [][] grille) {
     while (EcranGraphique.getMouseState()!=2) {
       EcranGraphique.wait(10); // Ne pas surcharger le processeur
     }
     // getMouseButton pour savoir si c'était un clic gauche ou droit
+    int clic = EcranGraphique.getMouseButton();
     // getMouseX|Y pour la position
+    EcranGraphique.getMouseX();
+    EcranGraphique.getMouseY();
     // faire le calcul qui détermine la cellule cliquée (au mieux on évite les bordures)
-    // si y'a un drapal on empêche le clic gauche
-    // si clic droit, on inverse l'état du drapeau
-    // si on peut découvrir la case, appeler decouvrirCase
-    
+    int x = (EcranGraphique.getMouseX()-3)/(LARGEUR_CASE+1);
+    int y = (EcranGraphique.getMouseY()-3)/(HAUTEUR_CASE+1);
+    // si y'a un drapeau on empêche le clic gauche
+    if (x >= 0 && x < nc && y >= 0 && y < nl) {
+      if (grille[x][y].drapeau) {
+        if (clic == 1) {
+          Ecran.afficherln("CLIC GAUCHE IMPOSSIBLE SUR UN DRAPEAU !");
+        }
+        // si clic droit, on inverse l'état du drapeau
+        else if (clic == 3) {
+          grille[x][y].drapeau = false;
+        }
+      }
+      else {
+        if (clic == 3) grille[x][y].drapeau = true;
+      }
+      // si on peut découvrir la case, appeler decouvrirCase
+      if (clic == 1 && !grille[x][y].drapeau) {
+        decouvrirCase(nc, nl, grille, x, y);
+      }
+    }
   }
   
   /**
@@ -195,13 +225,19 @@ public class Demineur {
    * Fonction pour tester si le joueur a terminé sa partie ou non.
    * Si oui, on précise si elle est gagnée ou perdue.
    */
-  static int statutGrille(int nc, int nl, Case [][] grille) {
+  static int statutGrille(int nc, int nl, int nm, Case [][] grille) {
     boolean aMineDecouverte = false, aCasePasDecouverte = false;
-    int c=0, l=0;
+    int c=0, l=0, nbMinesMarquees = 0;
     while (l<nl && !aMineDecouverte) {
       if (grille[c][l].contenu == MINE && grille[c][l].visible) {
         aMineDecouverte = true;
       } else {
+        if (grille[c][l].drapeau) {
+          if (grille[c][l].contenu == MINE)
+            nbMinesMarquees++;
+          else
+            nbMinesMarquees = nm+1; // Empêche de gagner en mettant des drapeaux partout
+        }
         c++;
         if (c == nc) {
           c = 0;
@@ -209,6 +245,8 @@ public class Demineur {
         }
       }
     }
+    if (nbMinesMarquees == nm)
+      return GAGNEE;
     if (aMineDecouverte)
       return PERDUE;
     
@@ -232,50 +270,69 @@ public class Demineur {
   }
   
   public static void main(String[] args) {
+    int tailleX;
+    int tailleY;
     int nl, nc, nm;
     Case [][] grille;
+    int [][] image = EcranGraphique.loadPNGFile("drapeau.png");
     int statutPartie = 0;
     Ecran.afficherln("Bienvenue dans le jeu du démineur !\nVous allez définir votre partie :");
     do {
-      Ecran.afficher("Nombre de lignes : ");
-      nl = Clavier.saisirInt();
-      if (nl < 1) {
-        Ecran.afficherln("La taille est trop petite. Merci de mettre une taille d'au moins 1.");
-      } else if (nl > 50) {
-        Ecran.afficherln("La taille est trop grande. Merci de ne pas dépasser 50.");
-      }
-    } while(nl < 1 || nl > 50);
-  
-    do {
-      Ecran.afficher("Nombre de colonnes : ");
-      nc = Clavier.saisirInt();
-      if (nc < 1) {
-        Ecran.afficherln("La taille est trop petite. Merci de mettre une taille d'au moins 1.");
-      } else if (nc > 80) {
-        Ecran.afficherln("La taille est trop grande. Merci de ne pas dépasser 80.");
-      }
-    } while(nc < 1 || nc > 80);
+      do {
+        Ecran.afficher("Nombre de lignes : ");
+        nl = Clavier.saisirInt();
+        if (nl < 1) {
+          Ecran.afficherln("Nombre de lignes trop petit. Merci de mettre une taille d'au moins 1.");
+        } else if (nl > 50) {
+          Ecran.afficherln("Nombre de lignes trop élevé. Merci de ne pas dépasser 50.");
+        }
+      } while(nl < 1 || nl > 50);
+    
+      do {
+        Ecran.afficher("Nombre de colonnes : ");
+        nc = Clavier.saisirInt();
+        if (nc < 1) {
+          Ecran.afficherln("Nombre de colonnes trop petit. Merci de mettre une taille d'au moins 1.");
+        } else if (nc > 80) {
+          Ecran.afficherln("Nombre de colonnes trop élevé. Merci de ne pas dépasser 80.");
+        }
+      } while(nc < 1 || nc > 80);
+      if (nc*nl == 1) Ecran.afficherln("Taille 1*1 interdite !"); 
+    } while(nc*nl == 1);
   
     do {
       Ecran.afficher("Nombre de mines : ");
       nm = Clavier.saisirInt();
       if (nm < 1) {
-        Ecran.afficherln("La taille est trop petite. Merci de mettre une taille d'au moins 1.");
+        Ecran.afficherln("Nombre de mines trop petit. Merci de mettre une taille d'au moins 1.");
       } else if (nm >= nc * nl) {
         Ecran.afficherln("Il y a trop de mines. Merci d'en mettre moins que ", nc*nl, ".");
       }
     } while(nm < 1 || nm >= nc*nl);
   
+    // Dimensions de la grille pour s'en servir
+    tailleX = 10 + nc * (LARGEUR_CASE+1);
+    tailleY = 10 + nl * (HAUTEUR_CASE+1);
     initialiserFenetre(nc, nl);
     grille = initialiserGrille(nc, nl, nm);
-    afficher(nc, nl, grille);
+    afficher(nc, nl, grille, image);
+    
     do {
       traiterEntree(nc, nl, grille);
-      statutPartie = statutGrille(nc, nl, grille);
+      statutPartie = statutGrille(nc, nl, nm, grille);
       
-      afficher(nc, nl, grille);
+      afficher(nc, nl, grille, image);
     } while (statutPartie == JOUABLE);
-    
+    Ecran.afficherln(statutPartie);
     // Message pour le joueur
+    if (statutPartie == PERDUE) {
+      EcranGraphique.setColor(255,0,0);
+      EcranGraphique.drawString(10, tailleY+13, EcranGraphique.COLABA8x13, "LOSER!!");
+    }
+    else {
+      EcranGraphique.setColor(0,0,255);
+      EcranGraphique.drawString(10, tailleY+13, EcranGraphique.COLABA8x13, "GGWP!!");
+    }
+    EcranGraphique.flush();
   }
 }
