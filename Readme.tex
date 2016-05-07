@@ -12,7 +12,7 @@
 % \usepackage{mathrsfs}
 
 \usepackage{hyperref}
-%\usepackage{scrextend}
+\usepackage{scrextend}
 
 \usepackage{graphicx}
 
@@ -74,11 +74,36 @@
 \newpage
 
 \section{Mode d'emploi}
+Le but du jeu est de découvrir toutes les cases non minées en évitant de cliquer sur une case minée. Le joueur a la possibilité de poser un drapeau sur une case qu'il soupçonne contenir une mine. Attention, le drapeau peut aussi être posé sur une case quelconque.
+\bigskip
 
+Après le lancement de l'application, le joueur saisit divers paramètres afin d'initialiser sa partie : nombre de lignes, colonnes, mines.
+À l'aide du clic gauche de la souris, le joueur peut découvrir une case. Avec le clic droit, il pose un drapeau sur la case.
+\bigskip
+
+Si le joueur clique par mégarde sur une mine, la partie s'arrête et le joueur a perdu.
+Accessoirement, le joueur peut rejouer en gardant les mêmes paramètres et ainsi tenter de battre son temps.
 \newpage
 \section{Développement}
+Cette section va traiter des divers aspects liés au développement de l'application.
 \subsection{Résolution des problèmes}
+Les problèmes rencontrés : 
+\bigskip
 
+- Types agrégés :   
+
+\begin{typeag}[Case]
+	\variable{visible}{booleen}{test si une case est découverte} \\
+	\variable{drapeau}{booleen}{test si une case a un drapeau} \\
+	\variable{contenu}{entier}{-1 si une mine sinon le nombre de mines adjacentes}
+\end{typeag}
+
+\begin{typeag}[Demineur]
+	\variable{nl}{entier}{nombre de lignes} \\
+	\variable{nc}{entier}{nombre de colonnes} \\
+	\variable{nm}{entier}{nombre de mines} \\
+	\variable{grille}{Case [nl][nc]}{représente la grille de jeu}
+	decouverte = 0 : entier (stack le nombre de cases découvertes)
 \subsection{Répartition des tâches}
 
 \end{document}
