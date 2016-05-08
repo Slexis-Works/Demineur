@@ -1,4 +1,4 @@
-// Développeurs : Alexis Cabodi et Mohamed Lakhal ; Groupe de TP 5 (I4-CMI) ; Sujet n°4
+//Développeurs : Alexis Cabodi et Mohamed Lakhal ; Sujet 4 Groupe 5 I4-CMI
 public class DemineurProjet {
   // Constantes pour la lisibilité
   final static int MINE = -1;
@@ -180,8 +180,8 @@ public class DemineurProjet {
       EcranGraphique.drawString(220 + dem.tailleX, 30, EcranGraphique.COLABA8x13, "Attente...");
     else
       EcranGraphique.drawString(220 + dem.tailleX, 30, EcranGraphique.COLABA8x13, Math.floor(((double)System.currentTimeMillis()/1000.0-dem.tempsDebut)*10.0)/10.0 + "s.");
-    EcranGraphique.drawString(30 + dem.tailleX, 70, EcranGraphique.COLABA8x13, "CLIC GAUCHE : LIBEREZ UNE CASE");
-    EcranGraphique.drawString(30 + dem.tailleX, 90, EcranGraphique.COLABA8x13, "CLIC DROIT : POSER UN DRAPEAU");
+    EcranGraphique.drawString(30 + dem.tailleX, 60, EcranGraphique.COLABA8x13, "CLIC GAUCHE : LIBEREZ UNE CASE");
+    EcranGraphique.drawString(30 + dem.tailleX, 80, EcranGraphique.COLABA8x13, "CLIC DROIT : POSER UN DRAPEAU");
     EcranGraphique.drawImage(180 + dem.tailleX, 10, imageClk);
     EcranGraphique.flush();
   }
@@ -359,11 +359,11 @@ public class DemineurProjet {
     // Message pour le joueur
     if (statutPartie == PERDUE) {
       EcranGraphique.setColor(255,0,0);
-      EcranGraphique.drawString(130 + dem.tailleX, 130, EcranGraphique.COLABA8x13, "LOSER!!");
+      EcranGraphique.drawString(130 + dem.tailleX, 115, EcranGraphique.COLABA8x13, "PERDU...");
     }
     else {
       EcranGraphique.setColor(0,0,255);
-      EcranGraphique.drawString(130 + dem.tailleX, 130, EcranGraphique.COLABA8x13, "GGWP!!");
+      EcranGraphique.drawString(130 + dem.tailleX, 115, EcranGraphique.COLABA8x13, "BRAVO !!");
     }
     EcranGraphique.flush();
   }
