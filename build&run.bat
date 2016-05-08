@@ -1,2 +1,2 @@
-javac -encoding UTF-8 Demineur.java && java Demineur
+javac -encoding UTF-8 DemineurProjet.java && java DemineurProjet
 PAUSE

@@ -235,7 +235,7 @@ public class DemineurProjet {
   static void decouvrirCase(Demineur dem, Case [][] grille, int c, int l) {
     grille[c][l].visible = true;
     if (grille[c][l].contenu == 0) {
-      // Exploration dans les 4 directions
+      // Exploration dans les 8 directions
       if (l > 0 && !grille[c][l-1].visible && grille[c][l-1].contenu != MINE)
         decouvrirCase(dem, grille, c, l-1); // Continuer en haut
       if (l < dem.nl-1 && !grille[c][l+1].visible && grille[c][l+1].contenu != MINE)
@@ -244,6 +244,15 @@ public class DemineurProjet {
         decouvrirCase(dem, grille, c-1, l); // Continuer à gauche
       if (c < dem.nc-1 && !grille[c+1][l].visible && grille[c+1][l].contenu != MINE)
         decouvrirCase(dem, grille, c+1, l); // Continuer à droite
+      
+      if (l > 0 && c > 0 && !grille[c-1][l-1].visible && grille[c-1][l-1].contenu != MINE)
+        decouvrirCase(dem, grille, c-1, l-1); // Continuer en haut à gauche
+      if (l > 0 && c < dem.nc-1 && !grille[c+1][l-1].visible && grille[c+1][l-1].contenu != MINE)
+        decouvrirCase(dem, grille, c+1, l-1); // Continuer en haut à droite
+      if (l < dem.nl-1 && c > 0 && !grille[c-1][l+1].visible && grille[c-1][l+1].contenu != MINE)
+        decouvrirCase(dem, grille, c-1, l+1); // Continuer en bas à gauche
+      if (l < dem.nl-1 && c < dem.nc-1 && !grille[c+1][l+1].visible && grille[c+1][l+1].contenu != MINE)
+        decouvrirCase(dem, grille, c+1, l+1); // Continuer en bas à droite
     }
   }
   
@@ -304,27 +313,24 @@ public class DemineurProjet {
     int statutPartie = JOUABLE;
     Ecran.afficherln("Bienvenue dans le jeu du démineur !\nVous allez définir votre partie :");
     do {
-      do {
-        Ecran.afficher("Nombre de lignes : ");
-        dem.nl = Clavier.saisirInt();
-        if (dem.nl < 1) {
-          Ecran.afficherln("Nombre de lignes trop petit. Merci de mettre une taille d'au moins 1.");
-        } else if (dem.nl > 50) {
-          Ecran.afficherln("Nombre de lignes trop élevé. Merci de ne pas dépasser 50.");
-        }
-      } while(dem.nl < 1 || dem.nl > 50);
-    
-      do {
-        Ecran.afficher("Nombre de colonnes : ");
-        dem.nc = Clavier.saisirInt();
-        if (dem.nc < 1) {
-          Ecran.afficherln("Nombre de colonnes trop petit. Merci de mettre une taille d'au moins 1.");
-        } else if (dem.nc > 80) {
-          Ecran.afficherln("Nombre de colonnes trop élevé. Merci de ne pas dépasser 80.");
-        }
-      } while(dem.nc < 1 || dem.nc > 80);
-      if (dem.nc*dem.nl == 1) Ecran.afficherln("Taille 1*1 interdite !"); 
-    } while(dem.nc*dem.nl == 1);
+      Ecran.afficher("Nombre de lignes : ");
+      dem.nl = Clavier.saisirInt();
+      if (dem.nl < 3) {
+        Ecran.afficherln("Nombre de lignes trop petit. Merci de mettre une taille d'au moins 3.");
+      } else if (dem.nl > 50) {
+        Ecran.afficherln("Nombre de lignes trop élevé. Merci de ne pas dépasser 50.");
+      }
+    } while(dem.nl < 3 || dem.nl > 50);
+  
+    do {
+      Ecran.afficher("Nombre de colonnes : ");
+      dem.nc = Clavier.saisirInt();
+      if (dem.nc < 3) {
+        Ecran.afficherln("Nombre de colonnes trop petit. Merci de mettre une taille d'au moins 3.");
+      } else if (dem.nc > 80) {
+        Ecran.afficherln("Nombre de colonnes trop élevé. Merci de ne pas dépasser 80.");
+      }
+    } while(dem.nc < 3 || dem.nc > 80);
   
     do {
       Ecran.afficher("Nombre de mines : ");
