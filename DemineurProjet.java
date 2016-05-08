@@ -179,7 +179,7 @@ public class DemineurProjet {
     if (dem.tempsDebut == -1.0)
       EcranGraphique.drawString(220 + dem.tailleX, 30, EcranGraphique.COLABA8x13, "Attente...");
     else
-      EcranGraphique.drawString(220 + dem.tailleX, 30, EcranGraphique.COLABA8x13, Math.floor(((double)System.currentTimeMillis()/1000.0-dem.tempsDebut)*10)/10 + "s.");
+      EcranGraphique.drawString(220 + dem.tailleX, 30, EcranGraphique.COLABA8x13, Math.floor(((double)System.currentTimeMillis()/1000.0-dem.tempsDebut)*10.0)/10.0 + "s.");
     EcranGraphique.drawString(30 + dem.tailleX, 70, EcranGraphique.COLABA8x13, "CLIC GAUCHE : LIBEREZ UNE CASE");
     EcranGraphique.drawString(30 + dem.tailleX, 90, EcranGraphique.COLABA8x13, "CLIC DROIT : POSER UN DRAPEAU");
     EcranGraphique.drawImage(180 + dem.tailleX, 10, imageClk);
@@ -351,7 +351,7 @@ public class DemineurProjet {
       if (traiterEntree(dem, grille)) {
         statutPartie = statutGrille(dem, grille);
         if (dem.tempsDebut == -1.0)
-          dem.tempsDebut = System.currentTimeMillis()/1000;
+          dem.tempsDebut = (double)System.currentTimeMillis()/1000.0;
       }
       afficher(dem, grille, imageFlag, imageMine, imageClk);
     } while (statutPartie == JOUABLE);
