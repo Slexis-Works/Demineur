@@ -13,7 +13,7 @@ public class DemineurProjet {
   
   /**
    * Une case du plateau
-   * - contenu : nombre indiquant si la case contient une mine ou sinon le nombre de mines adjacentes
+   * - contenu : nombre indiquant si la case contient une mine (-1) ou sinon le nombre de mines adjacentes
    * - visible : indique si la case est découverte ou pas
    * - drapeau : indique si la case a un drapeau ou non
    */
@@ -27,8 +27,8 @@ public class DemineurProjet {
    * Structure avec des données concernant le jeu
    * - nc : nombre de colonnes sur la grille
    * - nl : nombre de lignes sur la grille
-   * - nm : nombre de mine dans la grille
-   * - tempsDebut : heure du système au moment du premier clic sur la grille
+   * - nm : nombre de mines dans la grille
+   * - tempsDebut : heure du système au moment du premier clic utile sur la grille
    * - tailleX|Y : dimensions en pixels de la grille (pour des calculs de position)
    */
   static class Demineur {
@@ -38,11 +38,11 @@ public class DemineurProjet {
   }
   
   // Fonctions
+
   /**
-   * Initialisation de la fenêtre en prenant en compte le nombre de cases et de la place pour le message de fin de partie
+   * Initialisation de la fenêtre en prenant en compte le nombre de cases et la place pour les messages adjacents à la grille
    *
-   * @param nc nombre de colonnes de la grille
-   * @param nl nombre de lignes de la grille
+   * @param dem Structure contenant nc et nl
    */
   static void initialiserFenetre(Demineur dem) {
     dem.tailleX = 10 + dem.nc * (LARGEUR_CASE+1);
@@ -52,9 +52,14 @@ public class DemineurProjet {
   }
 	
   /**
-   * Initialisation de la grille en prenant en compte le nombre de cases et de mines
-   * Tirage aléatoire des coordonnées des cases minées
-   * Comptage des mines adjacentes aux cases (x, y)
+   * Création de la grille en prenant en compte le nombre de cases et de mines
+   *
+   * La fonction effectue un tirage aléatoire des coordonnées (colonne, ligne) des cases minées
+   * et compte les mines adjacentes de chaque case (x, y) non minée
+   * 
+   * @param dem Structure qui permet à la grille d'être initialisée selon nc, nl et nm
+   * 
+   * @return La grille nouvellement crée
    */
   static Case[][] initialiserGrille(Demineur dem) {
     Case[][] grille = new Case[dem.nc][dem.nl] ;    
@@ -147,7 +152,13 @@ public class DemineurProjet {
   }
   
   /**
-   * Affichage avec la classe EcranGraphique (drapeau, grille, case) selon leur visibilité
+   * Affichage avec la classe EcranGraphique de l'état du jeu (drapeau, grillage, cases…)
+   * 
+   * @param dem       Structure avec des informations sur la grille et le temps de départ
+   * @param grille    Ensemble de cases à afficher
+   * @param imageFlag Image du drapeau au format d'EcranGraphique
+   * @param imageMine Image d'une mine
+   * @param imageClk  Image de l'horloge
    */
   static void afficher(Demineur dem, Case [][] grille, int[][] imageFlag, int[][] imageMine, int[][] imageClk) {
     EcranGraphique.clear();
@@ -159,7 +170,6 @@ public class DemineurProjet {
         EcranGraphique.drawRect(5+(LARGEUR_CASE+1)*c, 5+(HAUTEUR_CASE+1)*l, LARGEUR_CASE, HAUTEUR_CASE);
         if (grille[c][l].visible) {
           if (grille[c][l].contenu == MINE) {
-            // Draw image ou cercle rouge
             EcranGraphique.drawImage(6+(LARGEUR_CASE+1)*c, 6+(HAUTEUR_CASE+1)*l, imageMine);
           } else if (grille[c][l].contenu > 0) {
             EcranGraphique.drawString(15+(LARGEUR_CASE+1)*c, 26+(HAUTEUR_CASE+1)*l, EcranGraphique.COLABA8x13, ""+grille[c][l].contenu);
@@ -188,6 +198,11 @@ public class DemineurProjet {
   
   /**
    * Fonction qui va attendre un clic du joueur et agir en conséquence
+   * 
+   * @param dem     Structure avec des informations utiles : les dimensions de la grille
+   * @param grille  Grille qui sera modifiée
+   * 
+   * @return vrai si la fonction a fait quelque chose ou false si le clic était inutile
    */
   static boolean traiterEntree(Demineur dem, Case [][] grille) {
     if (EcranGraphique.getMouseState()!=2) {
@@ -231,6 +246,11 @@ public class DemineurProjet {
   /**
    * Fonction qui permet de découvrir une case
    * et de continuer de manière récursive s'il n'y a pas de mines
+   * 
+   * @param dem     Structure avec des informations utiles : les dimensions de la grille
+   * @param grille  Grille contenant la case à découvrir
+   * @param c       Colonne de la case à découvrir
+   * @param l       Ligne de la case à découvrir
    */
   static void decouvrirCase(Demineur dem, Case [][] grille, int c, int l) {
     grille[c][l].visible = true;
@@ -259,6 +279,12 @@ public class DemineurProjet {
   /**
    * Fonction pour tester si le joueur a terminé sa partie ou non.
    * Si oui, on précise si elle est gagnée ou perdue.
+   * 
+   * @param dem     Structure avec nc, nl et nm correspondant à la grille
+   * @param grille  Grille dont on veut l'état
+   * 
+   * @return  renvoie un nombre indiquant l'état de la grille correspondant aux
+   *          constantes JOUABLE, GAGNEE ou PERDUE
    */
   static int statutGrille(Demineur dem, Case [][] grille) {
     boolean aMineDecouverte = false, aCasePasDecouverte = false;
@@ -304,6 +330,9 @@ public class DemineurProjet {
     return JOUABLE;
   }
   
+  /**
+   * Méthode principale qui va demander à l'utilisateur de configurer sa partie pour ensuite la faire tourner jusqu'à sa fin
+   */
   public static void main(String[] args) {
     Demineur dem = new Demineur();
     Case [][] grille;
@@ -363,7 +392,7 @@ public class DemineurProjet {
     }
     else {
       EcranGraphique.setColor(0,0,255);
-      EcranGraphique.drawString(130 + dem.tailleX, 115, EcranGraphique.COLABA8x13, "BRAVO !!");
+      EcranGraphique.drawString(130 + dem.tailleX, 115, EcranGraphique.COLABA8x13, "BRAVO !!!");
     }
     EcranGraphique.flush();
   }
