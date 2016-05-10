@@ -51,6 +51,9 @@
 % Arguments obligatoires : Nom — Type — Description
 \newcommand{\variable}[3]{\noindent \texttt{#1} : \textit{#2} --- #3}
 
+%Déclaration de variables
+\newcommand{\var}[1]{\texttt{#1}}
+
 % Algorithme informel % Ou \scriptsize
 \newenvironment{algoinfo}{\begin{itemize}\small}{\end{itemize}}
 
@@ -87,11 +90,10 @@ Accessoirement, le joueur peut rejouer en gardant les mêmes paramètres et ains
 \section{Développement}
 Cette section va traiter des divers aspects liés au développement de l'application.
 \subsection{Résolution des problèmes}
-Les problèmes rencontrés : 
-\bigskip
 
-- Types agrégés :   
+\subsubsection{Types agrégés}
 
+\smallskip
 \begin{typeag}[Case]
 	\variable{visible}{booleen}{test si une case est découverte} \\
 	\variable{drapeau}{booleen}{test si une case a un drapeau} \\
@@ -104,6 +106,70 @@ Les problèmes rencontrés :
 	\variable{nm}{entier}{nombre de mines} \\
 	\variable{grille}{Case [nl][nc]}{représente la grille de jeu}
 	decouverte = 0 : entier (stack le nombre de cases découvertes)
-\subsection{Répartition des tâches}
+\end{typeag}\smallskip
+
+\subsubsection{Divers problèmes}
+\paragraph{Initialisation du jeu} Tout d'abord, nous avons dû initialiser notre jeu, c'est à dire l'interface que rencontrera l'utilisateur. Ainsi, notre premier problème a été la création de la fenêtre de jeu. Pour cela nous avons utilisé la classe \var{EcranGraphique} qui nous a été donnée pour ce projet. Nous avons donc utilisé la fonction \var{EcranGraphique.init}. On fait appel pour cela à notre type agrégé \var{Demineur}, ainsi notre fenêtre de jeu s'adapte en fonction du nombre de lignes et de colonnes choisi par l'utilisateur tout en laissant de la place pour les instruction et le message de fin de partie.
+
+\begin{figure}[hpt]
+	\center
+	\caption{\label{Fonction initialiserFenetre} Fonction initialiserFenetre}
+\begin{lstlisting}
+static void initialiserFenetre(Demineur dem)
+{
+	dem.tailleX = 10 + dem.nc * (LARGEUR_CASE+1);
+	dem.tailleY = 10 + dem.nl * (HAUTEUR_CASE+1);
+	EcranGraphique.init(50, 50, dem.tailleX+390, dem.tailleY+110, dem.tailleX + 350, dem.tailleY + 30, "Demineur");
+	EcranGraphique.setClearColor(0, 0, 0);
+}
+\end{lstlisting}
+\end{figure} 
+
+\paragraph{Initialisation de la grille} Concernant ce problème, nous devions donc initialiser notre grille en prenant en compte le nombre de cases et de mines, puis il fallait tirer aléatoirement les coordonnées des cases minées et compter le nombre de mines adjacentes aux cases (x,y). Le type agrégé \var{Demineur} a donc été nécessaire. La fonction est assez longue car il nous as fallu prendre en compte tous les cas afin de compter les mines adjacentes dans toutes les directions selon la position où le joueur effectue son clic dans la grille.
+
+\paragraph{Affichage}
+\begin{figure}[hpt]
+	\center
+	\caption{\label{Fonction afficher} Fonction afficher}
+\begin{lstlisting}
+static void afficher(Demineur dem, Case [][] grille, int[][] imageFlag, int[][] imageMine, int[][] imageClk) 
+{
+    EcranGraphique.clear();
+    EcranGraphique.setColor(0, 255, 0);
+    EcranGraphique.drawRect(4, 4, 1+(LARGEUR_CASE+1)*dem.nc, 1+(HAUTEUR_CASE+1)*dem.nl);
+    for(int l = 0; l < dem.nl; l++) {
+      for(int c = 0; c < dem.nc; c++) {
+        EcranGraphique.setColor(0, 255, 0);
+        EcranGraphique.drawRect(5+(LARGEUR_CASE+1)*c, 5+(HAUTEUR_CASE+1)*l, LARGEUR_CASE, HAUTEUR_CASE);
+        if (grille[c][l].visible) {
+          if (grille[c][l].contenu == MINE) {
+            // Draw image ou cercle rouge
+            EcranGraphique.drawImage(6+(LARGEUR_CASE+1)*c, 6+(HAUTEUR_CASE+1)*l, imageMine);
+          } else if (grille[c][l].contenu > 0) {
+            EcranGraphique.drawString(15+(LARGEUR_CASE+1)*c, 26+(HAUTEUR_CASE+1)*l, EcranGraphique.COLABA8x13, ""+grille[c][l].contenu);
+          }
+        } else if (grille[c][l].drapeau) {
+          /*EcranGraphique.setColor(240, 0, 0);
+          EcranGraphique.fillRect(6+(LARGEUR_CASE+1)*c, 6+(HAUTEUR_CASE+1)*l, LARGEUR_CASE-1, HAUTEUR_CASE-1);*/
+          EcranGraphique.drawImage(6+(LARGEUR_CASE+1)*c, 6+(HAUTEUR_CASE+1)*l, imageFlag);
+        } else { // Non visible, "cache" bleu
+          EcranGraphique.setColor(0, 0, 240);
+          EcranGraphique.fillRect(6+(LARGEUR_CASE+1)*c, 6+(HAUTEUR_CASE+1)*l, LARGEUR_CASE-1, HAUTEUR_CASE-1);
+        }
+      }
+    }
+    EcranGraphique.setColor(0, 255, 0);
+    EcranGraphique.drawString(30 + dem.tailleX, 30, EcranGraphique.COLABA8x13, "JEU : DEMINEUR");
+    if (dem.tempsDebut == -1.0)
+      EcranGraphique.drawString(220 + dem.tailleX, 30, EcranGraphique.COLABA8x13, "Attente...");
+    else
+      EcranGraphique.drawString(220 + dem.tailleX, 30, EcranGraphique.COLABA8x13, Math.floor(((double)System.currentTimeMillis()/1000.0-dem.tempsDebut)*10)/10 + "s.");
+    EcranGraphique.drawString(30 + dem.tailleX, 70, EcranGraphique.COLABA8x13, "CLIC GAUCHE : LIBEREZ UNE CASE");
+    EcranGraphique.drawString(30 + dem.tailleX, 90, EcranGraphique.COLABA8x13, "CLIC DROIT : POSER UN DRAPEAU");
+    EcranGraphique.drawImage(180 + dem.tailleX, 10, imageClk);
+    EcranGraphique.flush();
+ }
+\end{lstlisting}
+\end{figure}
 
 \end{document}
