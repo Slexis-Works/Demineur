@@ -92,28 +92,33 @@ Cette section va traiter des divers aspects liés au développement de l'applica
 \subsection{Résolution des problèmes}
 
 \subsubsection{Types agrégés}
+Le premier problème était d'abord de représenter les informations du jeu de manière compréhensible par l'ordinateur. Nous avons finalement décidé de structurer ces données en types agrégés. Les deux types suivants, accompagnés de quelques tableaux bidimensionnels pour les images, suffisent à décrire ces informations. D'abord une case du jeu, qui sera ajoutée autant de fois que nécessaire dans la grille faisant partie de l'autre type agrégé. À noter que pour simplifier l'écriture du programme, la grille est une variable indépendante de \var{Demineur} dans le code source.
 
 \smallskip
 \begin{typeag}[Case]
-	\variable{visible}{booleen}{test si une case est découverte} \\
-	\variable{drapeau}{booleen}{test si une case a un drapeau} \\
-	\variable{contenu}{entier}{-1 si une mine sinon le nombre de mines adjacentes}
+	\variable{visible}{booléen}{indique si la case est découverte} \\
+	\variable{drapeau}{booléen}{indique si la case a un drapeau} \\
+	\variable{contenu}{entier}{vaut $-1$ si la case contient une mine sinon indique le nombre de mines adjacentes}
 \end{typeag}
 
 \begin{typeag}[Demineur]
 	\variable{nl}{entier}{nombre de lignes} \\
 	\variable{nc}{entier}{nombre de colonnes} \\
 	\variable{nm}{entier}{nombre de mines} \\
-	\variable{grille}{Case [nl][nc]}{représente la grille de jeu}
-	decouverte = 0 : entier (stack le nombre de cases découvertes)
+	\variable{tempsDebut}{réel}{temps de référence en millisecondes enregistré lors de la première action} \\
+	\variable{grille}{Tableau [nc][nl] de Case}{représente la grille de jeu} \\
+	\variable{tailleX}{entier}{position de référence en pixels pour les messages à droite (largeur de la grille)} \\
+	\variable{tailleY}{entier}{taille de référence en pixels pour la hauteur de la fenêtre}
 \end{typeag}\smallskip
 
 \subsubsection{Divers problèmes}
-\paragraph{Initialisation du jeu} Tout d'abord, nous avons dû initialiser notre jeu, c'est à dire l'interface que rencontrera l'utilisateur. Ainsi, notre premier problème a été la création de la fenêtre de jeu. Pour cela nous avons utilisé la classe \var{EcranGraphique} qui nous a été donnée pour ce projet. Nous avons donc utilisé la fonction \var{EcranGraphique.init}. On fait appel pour cela à notre type agrégé \var{Demineur}, ainsi notre fenêtre de jeu s'adapte en fonction du nombre de lignes et de colonnes choisi par l'utilisateur tout en laissant de la place pour les instruction et le message de fin de partie.
+Passons maintenant en revue tous les sous-problèmes qui composent un jeu tel que le Démineur.
+
+\paragraph{Initialisation du jeu} Tout d'abord, nous avons dû initialiser notre jeu, c'est à dire l'interface que rencontrera l'utilisateur. Ainsi, notre premier problème a été la création d'une fenêtre de jeu adaptée à différentes tailles de grille. Pour cela nous avons utilisé la classe \var{EcranGraphique} qui nous a été donnée pour ce projet. Plus particulièrement, on appelle sa fonction \var{EcranGraphique.init}. On se sert pour cela de notre type agrégé \var{Demineur}. Ainsi, notre fenêtre de jeu s'adapte en fonction du nombre de lignes et de colonnes choisi par l'utilisateur tout en laissant de la place pour les instruction et le message de fin de partie.
 
 \begin{figure}[hpt]
 	\center
-	\caption{\label{Fonction initialiserFenetre} Fonction initialiserFenetre}
+	\caption{\label{fig:fnInitialiserFenetre} Fonction \var{initialiserFenetre}}
 \begin{lstlisting}
 static void initialiserFenetre(Demineur dem)
 {
@@ -125,12 +130,15 @@ static void initialiserFenetre(Demineur dem)
 \end{lstlisting}
 \end{figure} 
 
-\paragraph{Initialisation de la grille} Concernant ce problème, nous devions donc initialiser notre grille en prenant en compte le nombre de cases et de mines, puis il fallait tirer aléatoirement les coordonnées des cases minées et compter le nombre de mines adjacentes aux cases (x,y). Le type agrégé \var{Demineur} a donc été nécessaire. La fonction est assez longue car il nous as fallu prendre en compte tous les cas afin de compter les mines adjacentes dans toutes les directions selon la position où le joueur effectue son clic dans la grille.
+\paragraph{Initialisation de la grille} Concernant ce problème, nous devions initialiser notre grille en prenant en compte le nombre de cases et de mines. Il fallait alors tirer aléatoirement les coordonnées des cases minées et compter le nombre de mines adjacentes aux cases de coordonnées $(x,y) \iff (colonne, ligne)$. Le type agrégé \var{Demineur} a donc été nécessaire. La fonction est assez longue car il nous a fallu prendre en compte tous les cas afin de compter les mines adjacentes dans toutes les directions sauf celles qui nous font sortir de la grille.
 
-\paragraph{Affichage}
+\paragraph{Affichage} L'affichage de l'état du jeu est une partie très importante dans un jeu. En utilisant des fonctions simples, on peut construire une interface pratique pour l'utilisateur. Avec \var{EcranGraphique} et contrairement à une sortie console simple, on peut dessiner les formes dans n'importe quel ordre, tant qu'on indique la nouvelle couleur. Cela permet de regrouper dans des boucles le traçage de formes répétitives telles que les cases. Ces cases sont ici des bordures de rectangles placées côte à côte puis remplies soit avec une image de drapeau ou de mine, soit le cache bleu d'une case masquée, soit le nombre de mines adjacentes. Rien n'est écrit si ce nombre est nul. Le texte à côté est affiché assez simplement avec \var{EcranGraphique.drawString}.
+
+Si aucune action n'est effectuée, la boucle de jeu continue et l'image est rafraîchie. On voit ainsi le chronomètre s'actualiser tout le temps.
+
 \begin{figure}[hpt]
 	\center
-	\caption{\label{Fonction afficher} Fonction afficher}
+	\caption{\label{fig:fnAfficher} Fonction \var{afficher}}
 \begin{lstlisting}
 static void afficher(Demineur dem, Case [][] grille, int[][] imageFlag, int[][] imageMine, int[][] imageClk) 
 {
@@ -171,5 +179,135 @@ static void afficher(Demineur dem, Case [][] grille, int[][] imageFlag, int[][] 
  }
 \end{lstlisting}
 \end{figure}
+
+\paragraph{Traitement des actions du joueur} L'acquisition des actions du joueur est également importante dans un jeu. Ici, tout se fait à l'aide de la souris. Pour nous faciliter la tâche, \var{EcranGraphique} embarque des fonctions nous indiquant où est la souris sur la zone de jeu et avec quel bouton l'utilisateur a cliqué, s'il a cliqué. En combinant ces fonctions ensemble, on peut savoir sur quelle case à cliqué le joueur. On a cette information en appliquant un calcul de division entière sur les coordonnées du curseur. Une fois la case connue, on va étudier s'il faut changer son drapeau ou si l'absence de ce dernier nous autorise à découvrir la case. Le cas échéant, on envoie les coordonnées de la case à la fonction \var{decouvrirCase}. Elle a la particularité de propager le découvrement aux huit cases adjacentes (ou moins si l'on est aux bords) en s'appelant récursivement si la case actuelle contient $0$.
+
+\begin{figure}[hpt]
+	\center
+	\caption{\label{fig:fnTraiterEntree} Fonction \var{traiterEntree}}
+\begin{lstlisting}
+static boolean traiterEntree(Demineur dem, Case [][] grille) {
+  if (EcranGraphique.getMouseState()!=2) {
+    EcranGraphique.wait(10); // Ne pas surcharger le processeur
+    return false;
+  }
+  // getMouseButton pour savoir si c'etait un clic gauche ou droit
+  int clic = EcranGraphique.getMouseButton();
+  // getMouseX|Y pour la position
+  EcranGraphique.getMouseX();
+  EcranGraphique.getMouseY();
+  // faire le calcul qui determine la cellule cliquee (au mieux on evite les bordures)
+  int x = (EcranGraphique.getMouseX()-3)/(LARGEUR_CASE+1);
+  int y = (EcranGraphique.getMouseY()-3)/(HAUTEUR_CASE+1);
+  // si y'a un drapeau on empeche le clic gauche
+  if (x >= 0 && x < dem.nc && y >= 0 && y < dem.nl) {
+    if (grille[x][y].drapeau) {
+      if (clic == 1) {
+        Ecran.afficherln("CLIC GAUCHE IMPOSSIBLE SUR UN DRAPEAU !");
+        return false;
+      }
+      // si clic droit, on inverse l'etat du drapeau
+      else if (clic == 3) {
+        grille[x][y].drapeau = false;
+      }
+    }
+    else {
+      if (clic == 3) grille[x][y].drapeau = true;
+    }
+    // si on peut decouvrir la case, appeler decouvrirCase
+    if (clic == 1 && !grille[x][y].drapeau) {
+      decouvrirCase(dem, grille, x, y);
+    }
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+\end{lstlisting}
+\end{figure}
+
+
+\paragraph{Détection de la fin de partie} Pour que la boucle de jeu ne dure pas indéfiniment, il faut que le programme sache quand s'arrêter. La complexification du programme, due à la gestion du temps et des drapeaux a fait que nous avons préféré faire une fonction à part pour dire si la partie est finie ou non. Sinon, il aurait été possible de directement compter les clics corrects ou un incorrect dans le traitement des entrées. La fonction développée simplifie quand même l'écriture du programme principal, en indiquant si la partie est non terminée, gagnée ou perdue. La première information sera utile pour la boucle principale et les deux autres pour l'affichage du message de fin de partie.
+
+La fonction va d'abord analyser toutes les cases pour savoir si toutes les cases minées et seulement ces cases ont un drapeau (auquel cas le joueur a gagné) ou si l'une des cases minées est découverte (la partie est perdue). Sinon, la fonction va vérifier si toutes les cases (implicitement non minées) sont découvertes. Si tous ces tests échouent, la partie est alors considérée comme jouable.
+\begin{figure}[hpt]
+	\center
+	\caption{\label{fig:fnStatut} Fonction \var{statutGrille}}
+\begin{lstlisting}
+// Statuts de la grille (en haut du programme)
+final static int JOUABLE = 0;
+final static int GAGNEE = 1;
+final static int PERDUE = 2;
+
+// Plus loin dans le code
+
+static int statutGrille(Demineur dem, Case [][] grille) {
+  boolean aMineDecouverte = false, aCasePasDecouverte = false;
+  int c=0, l=0, nbMinesMarquees = 0;
+  while (l<dem.nl && !aMineDecouverte) {
+    if (grille[c][l].contenu == MINE && grille[c][l].visible) {
+      aMineDecouverte = true;
+    } else {
+      if (grille[c][l].drapeau) {
+        if (grille[c][l].contenu == MINE)
+          nbMinesMarquees++;
+        else
+          nbMinesMarquees = dem.nm+1; // Empeche de gagner en mettant des drapeaux partout
+      }
+      c++;
+      if (c == dem.nc) {
+        c = 0;
+        l++;
+      }
+    }
+  }
+  if (nbMinesMarquees == dem.nm)
+    return GAGNEE;
+  if (aMineDecouverte)
+    return PERDUE;
+  
+  c=0;
+  l=0;
+  while (l<dem.nl && !aCasePasDecouverte) {
+    if (grille[c][l].contenu != MINE && !grille[c][l].visible) {
+      aCasePasDecouverte = true;
+    } else {
+      c++;
+      if (c == dem.nc) {
+        c = 0;
+        l++;
+      }
+    }
+  }
+  if (!aCasePasDecouverte)
+    return GAGNEE;
+  
+  return JOUABLE;
+}
+\end{lstlisting}
+\end{figure}
+
+\newpage
+\subsection{Répartition des tâches}
+Il est important de répartir les tâches pour gagner en efficacité et en qualité. De plus, chacun a participé à la correction et à l'amélioration des fonctions de l'autre. Par conséquent les fonctions et autres tâches indiquées sont attribuées uniquement à celui qui y a le plus participé.
+
+\subsubsection{Travail d'Alexis}
+\begin{itemize}
+	\item Types agrégés ; 
+	\item \var{initialiserFenetre}, \var{afficher}, \var{decouvrirCase}, \var{statutGrille} ;
+	\item Saisie des paramètres ;
+	\item Base du rapport ;
+	\item Javadoc.
+\end{itemize}
+
+\subsubsection{Travail de Mohamed}
+\begin{itemize}
+	\item Images et disposition des éléments de droite ;
+	\item Fonctions \var{initialiserGrille}, \var{traiterEntree} ;
+	\item Complétion du rapport ;
+	\item Javadoc.
+\end{itemize}
+
 
 \end{document}

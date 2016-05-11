@@ -206,7 +206,7 @@ public class DemineurProjet {
    */
   static boolean traiterEntree(Demineur dem, Case [][] grille) {
     if (EcranGraphique.getMouseState()!=2) {
-      //EcranGraphique.wait(10); // Ne pas surcharger le processeur
+      EcranGraphique.wait(10); // Ne pas surcharger le processeur
       return false;
     }
     // getMouseButton pour savoir si c'était un clic gauche ou droit
