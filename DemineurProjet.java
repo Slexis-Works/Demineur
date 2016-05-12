@@ -1,4 +1,4 @@
-//Développeurs : Alexis Cabodi et Mohamed Lakhal ; Sujet 4 Groupe 5 I4-CMI
+// Développeurs : Alexis Cabodi et Mohamed Lakhal ; Sujet 4 Groupe 5 I4-CMI
 public class DemineurProjet {
   // Constantes pour la lisibilité
   final static int MINE = -1;
@@ -13,7 +13,7 @@ public class DemineurProjet {
   
   /**
    * Une case du plateau
-   * - contenu : nombre indiquant si la case contient une mine (-1) ou sinon le nombre de mines adjacentes
+   * - contenu : nombre (entier) indiquant si la case contient une mine (-1) ou sinon le nombre de mines adjacentes
    * - visible : indique si la case est découverte ou pas
    * - drapeau : indique si la case a un drapeau ou non
    */
@@ -25,10 +25,10 @@ public class DemineurProjet {
   
   /**
    * Structure avec des données concernant le jeu
-   * - nc : nombre de colonnes sur la grille
-   * - nl : nombre de lignes sur la grille
-   * - nm : nombre de mines dans la grille
-   * - tempsDebut : heure du système au moment du premier clic utile sur la grille
+   * - nc : nombre (entier positif) de colonnes sur la grille
+   * - nl : nombre (entier positif) de lignes sur la grille
+   * - nm : nombre (entier positif) de mines dans la grille
+   * - tempsDebut : heure en secondes (jusqu'aux millisecondes après la virgule) du système au moment du premier clic utile sur la grille
    * - tailleX|Y : dimensions en pixels de la grille (pour des calculs de position)
    */
   static class Demineur {
@@ -42,7 +42,7 @@ public class DemineurProjet {
   /**
    * Initialisation de la fenêtre en prenant en compte le nombre de cases et la place pour les messages adjacents à la grille
    *
-   * @param dem Structure contenant nc et nl
+   * @param dem Structure contenant nc et nl et qui recevra tailleX et tailleY
    */
   static void initialiserFenetre(Demineur dem) {
     dem.tailleX = 10 + dem.nc * (LARGEUR_CASE+1);
@@ -175,8 +175,6 @@ public class DemineurProjet {
             EcranGraphique.drawString(15+(LARGEUR_CASE+1)*c, 26+(HAUTEUR_CASE+1)*l, EcranGraphique.COLABA8x13, ""+grille[c][l].contenu);
           } // "0" non affichés
         } else if (grille[c][l].drapeau) {
-          /*EcranGraphique.setColor(240, 0, 0);
-          EcranGraphique.fillRect(6+(LARGEUR_CASE+1)*c, 6+(HAUTEUR_CASE+1)*l, LARGEUR_CASE-1, HAUTEUR_CASE-1);*/
           EcranGraphique.drawImage(6+(LARGEUR_CASE+1)*c, 6+(HAUTEUR_CASE+1)*l, imageFlag);
         } else { // Non visible, "cache" bleu
           EcranGraphique.setColor(0, 0, 240);
@@ -197,12 +195,12 @@ public class DemineurProjet {
   }
   
   /**
-   * Fonction qui va attendre un clic du joueur et agir en conséquence
+   * Fonction qui va possiblement altérer la grille si le joueur a cliqué
    * 
    * @param dem     Structure avec des informations utiles : les dimensions de la grille
    * @param grille  Grille qui sera modifiée
    * 
-   * @return vrai si la fonction a fait quelque chose ou false si le clic était inutile
+   * @return vrai si la fonction a fait quelque chose ou false si le clic était inutile ou absent
    */
   static boolean traiterEntree(Demineur dem, Case [][] grille) {
     if (EcranGraphique.getMouseState()!=2) {
@@ -211,29 +209,26 @@ public class DemineurProjet {
     }
     // getMouseButton pour savoir si c'était un clic gauche ou droit
     int clic = EcranGraphique.getMouseButton();
-    // getMouseX|Y pour la position
-    EcranGraphique.getMouseX();
-    EcranGraphique.getMouseY();
-    // faire le calcul qui détermine la cellule cliquée (au mieux on évite les bordures)
-    int x = (EcranGraphique.getMouseX()-3)/(LARGEUR_CASE+1);
-    int y = (EcranGraphique.getMouseY()-3)/(HAUTEUR_CASE+1);
-    // si y'a un drapeau on empêche le clic gauche
+    // calcul qui détermine la cellule cliquée (bordure incluse)
+    int x = (EcranGraphique.getMouseX()-5)/(LARGEUR_CASE+1);
+    int y = (EcranGraphique.getMouseY()-5)/(HAUTEUR_CASE+1);
+    // s'il y a un drapeau on empêche le clic gauche
     if (x >= 0 && x < dem.nc && y >= 0 && y < dem.nl) {
       if (grille[x][y].drapeau) {
         if (clic == 1) {
           Ecran.afficherln("CLIC GAUCHE IMPOSSIBLE SUR UN DRAPEAU !");
           return false;
         }
-        // si clic droit, on inverse l'état du drapeau
+        // si clic droit, on enlève drapeau
         else if (clic == 3) {
           grille[x][y].drapeau = false;
         }
       }
-      else {
-        if (clic == 3) grille[x][y].drapeau = true;
+      else if (clic == 3) {
+        grille[x][y].drapeau = true;
       }
-      // si on peut découvrir la case, appeler decouvrirCase
-      if (clic == 1 && !grille[x][y].drapeau) {
+      // si on peut découvrir la case
+      else if (clic == 1) {
         decouvrirCase(dem, grille, x, y);
       }
       return true;
@@ -283,7 +278,7 @@ public class DemineurProjet {
    * @param dem     Structure avec nc, nl et nm correspondant à la grille
    * @param grille  Grille dont on veut l'état
    * 
-   * @return  renvoie un nombre indiquant l'état de la grille correspondant aux
+   * @return  Renvoie un nombre indiquant l'état de la grille correspondant aux
    *          constantes JOUABLE, GAGNEE ou PERDUE
    */
   static int statutGrille(Demineur dem, Case [][] grille) {
@@ -332,6 +327,8 @@ public class DemineurProjet {
   
   /**
    * Méthode principale qui va demander à l'utilisateur de configurer sa partie pour ensuite la faire tourner jusqu'à sa fin
+   * 
+   * @param args Arguments non supportés
    */
   public static void main(String[] args) {
     Demineur dem = new Demineur();
@@ -340,6 +337,8 @@ public class DemineurProjet {
     int [][] imageMine = EcranGraphique.loadPNGFile("mine.png");
     int [][] imageClk  = EcranGraphique.loadPNGFile("clock.png");
     int statutPartie = JOUABLE;
+    
+    // Configuration
     Ecran.afficherln("Bienvenue dans le jeu du démineur !\nVous allez définir votre partie :");
     do {
       Ecran.afficher("Nombre de lignes : ");
@@ -371,11 +370,11 @@ public class DemineurProjet {
       }
     } while(dem.nm < 1 || dem.nm >= dem.nc*dem.nl);
   
-    // Dimensions de la grille pour s'en servir
+    // Initialisation
     initialiserFenetre(dem);
     grille = initialiserGrille(dem);
-    afficher(dem, grille, imageFlag, imageMine, imageClk);
     
+    // Boucle de jeu
     do {
       if (traiterEntree(dem, grille)) {
         statutPartie = statutGrille(dem, grille);
@@ -385,7 +384,7 @@ public class DemineurProjet {
       afficher(dem, grille, imageFlag, imageMine, imageClk);
     } while (statutPartie == JOUABLE);
 
-    // Message pour le joueur
+    // Message de fin de partie pour le joueur
     if (statutPartie == PERDUE) {
       EcranGraphique.setColor(255,0,0);
       EcranGraphique.drawString(130 + dem.tailleX, 115, EcranGraphique.COLABA8x13, "PERDU...");
