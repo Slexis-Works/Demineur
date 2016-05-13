@@ -1,4 +1,4 @@
-// Développeurs : Alexis Cabodi et Mohamed Lakhal ; Sujet 4 Groupe 5 I4-CMI
+// Développeurs : Alexis Cabodi et Mohamed Lakhal du Groupe 5 (I4-CMI) Sujet 4 
 public class DemineurProjet {
   // Constantes pour la lisibilité
   final static int MINE = -1;
@@ -12,7 +12,7 @@ public class DemineurProjet {
   // Types agrégés
   
   /**
-   * Une case du plateau
+   * Une case du plateau. Ce type agrégé permet de regrouper diverses informations dans une case du tableau de la grille
    * - contenu : nombre (entier) indiquant si la case contient une mine (-1) ou sinon le nombre de mines adjacentes
    * - visible : indique si la case est découverte ou pas
    * - drapeau : indique si la case a un drapeau ou non
@@ -24,7 +24,7 @@ public class DemineurProjet {
   }
   
   /**
-   * Structure avec des données concernant le jeu
+   * Structure avec des données concernant le jeu qui sont utilisées dans la plupart des fonctions
    * - nc : nombre (entier positif) de colonnes sur la grille
    * - nl : nombre (entier positif) de lignes sur la grille
    * - nm : nombre (entier positif) de mines dans la grille
@@ -212,10 +212,9 @@ public class DemineurProjet {
     // calcul qui détermine la cellule cliquée (bordure incluse)
     int x = (EcranGraphique.getMouseX()-5)/(LARGEUR_CASE+1);
     int y = (EcranGraphique.getMouseY()-5)/(HAUTEUR_CASE+1);
-    // s'il y a un drapeau on empêche le clic gauche
     if (x >= 0 && x < dem.nc && y >= 0 && y < dem.nl) {
       if (grille[x][y].drapeau) {
-        if (clic == 1) {
+        if (clic == 1) { // s'il y a un drapeau on empêche le clic gauche
           Ecran.afficherln("CLIC GAUCHE IMPOSSIBLE SUR UN DRAPEAU !");
           return false;
         }
@@ -223,11 +222,10 @@ public class DemineurProjet {
         else if (clic == 3) {
           grille[x][y].drapeau = false;
         }
-      }
+      } // s'il n'y a pas de drapeau et qu'on fait un clic droit
       else if (clic == 3) {
         grille[x][y].drapeau = true;
-      }
-      // si on peut découvrir la case
+      } // si on peut découvrir la case
       else if (clic == 1) {
         decouvrirCase(dem, grille, x, y);
       }
