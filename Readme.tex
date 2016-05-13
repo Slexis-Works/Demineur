@@ -77,22 +77,37 @@
 \newpage
 
 \section{Mode d'emploi}
-Le but du jeu est de découvrir toutes les cases non minées en évitant de cliquer sur une case minée. Le joueur a la possibilité de poser un drapeau sur une case qu'il soupçonne contenir une mine. Attention, le drapeau peut aussi être posé sur une case quelconque.
+Le but du jeu est de découvrir toutes les cases non minées en évitant de cliquer sur une case minée. Le joueur a la possibilité de poser un drapeau sur une case qu'il soupçonne contenir une mine. Attention, le drapeau peut aussi être posé sur une case quelconque. Il faudra donc les placer avec autant de réflexion qu'en découvrant une case.
 \bigskip
 
-Après le lancement de l'application, le joueur saisit divers paramètres afin d'initialiser sa partie : nombre de lignes, colonnes, mines.
-À l'aide du clic gauche de la souris, le joueur peut découvrir une case. Avec le clic droit, il pose un drapeau sur la case.
+Après le lancement de l'application, le joueur saisit divers paramètres afin d'initialiser sa partie : nombre de lignes (entre 3 et 50 inclus), de colonnes (entre 3 et 80 inclus) et de mines (au moins une et moins que le nombre de cases).
+À l'aide du clic gauche de la souris, le joueur peut découvrir une case. Avec le clic droit, il pose un drapeau sur la case. Ce drapeau assure le joueur qu'il ne pourra pas découvrir une mine par accident puisqu'il faudra retirer le drapeau à l'aide d'un autre clic droit pour pouvoir découvrir la case.
 \bigskip
 
-Si le joueur clique par mégarde sur une mine, la partie s'arrête et le joueur a perdu.
-Accessoirement, le joueur peut rejouer en gardant les mêmes paramètres et ainsi tenter de battre son temps.
+En cours de jeu, le joueur peut voir à tout moment le temps écoulé depuis son premier placement de drapeau ou découvrement de case. Le chronomètre en haut à droite s'arrêtera en même temps que la partie, ce qui permet de voir le temps de jeu total à la fin.
+\bigskip
+
+Si le joueur découvre une case minée, il perd et donc la partie s'arrête.
+Le joueur gagne et la partie se termine si l'une des deux conditions suivantes est satisfaite :
+\begin{itemize}
+	\item L'ensemble des cases non minées et uniquement ces cases sont découvertes. Les drapeaux placés n'influent pas ;
+	\item L'ensemble des cases minées et uniquement ces cases contiennent un drapeau. Les cases découvertes n'influent pas.
+\end{itemize}
+\smallskip
+
+\begin{figure}[htp]
+\includegraphics[width=\columnwidth]{Exemple.png}
+\caption{Partie s'aidant des drapeaux}
+\label{fig:picApercu}
+\end{figure}
+
 \newpage
 \section{Développement}
 Cette section va traiter des divers aspects liés au développement de l'application.
 \subsection{Résolution des problèmes}
 
 \subsubsection{Types agrégés}
-Le premier problème était d'abord de représenter les informations du jeu de manière compréhensible par l'ordinateur. Nous avons finalement décidé de structurer ces données en types agrégés. Les deux types suivants, accompagnés de quelques tableaux bidimensionnels pour les images, suffisent à décrire ces informations. D'abord une case du jeu, qui sera ajoutée autant de fois que nécessaire dans la grille faisant partie de l'autre type agrégé. À noter que pour simplifier l'écriture du programme, la grille est une variable indépendante de \var{Demineur} dans le code source.
+Le premier problème était d'abord de représenter les informations du jeu de manière compréhensible par l'ordinateur. Nous avons finalement décidé de structurer ces données en deux types agrégés. Ces types, accompagnés de quelques tableaux bidimensionnels pour les images, suffisent à décrire ces informations. D'abord une case du jeu, qui sera ajoutée autant de fois que nécessaire dans la grille faisant partie de l'autre type agrégé. À noter que pour simplifier l'écriture du programme, la grille est une variable indépendante de \var{Demineur} dans le code source.
 
 \smallskip
 \begin{typeag}[Case]
@@ -114,6 +129,20 @@ Le premier problème était d'abord de représenter les informations du jeu de m
 \subsubsection{Divers problèmes}
 Passons maintenant en revue tous les sous-problèmes qui composent un jeu tel que le Démineur.
 
+\begin{figure}[hpt]
+	\center
+	\caption{\label{fig:constantes} Constantes globales en début de programme}
+\begin{lstlisting}
+// Constantes pour la lisibilite et la comprehension
+final static int MINE = -1; // Valeur arbitraire pour indiquer qu'une case contient une mine
+final static int TAILLE_CASE = 29; // EcranGraphique rajoutera un pixel de bordure a droite
+// Statuts de la grille
+final static int JOUABLE = 0;
+final static int GAGNEE = 1;
+final static int PERDUE = 2;
+\end{lstlisting}
+\end{figure}
+
 \paragraph{Initialisation du jeu} Tout d'abord, nous avons dû initialiser notre jeu, c'est à dire l'interface que rencontrera l'utilisateur. Ainsi, notre premier problème a été la création d'une fenêtre de jeu adaptée à différentes tailles de grille. Pour cela nous avons utilisé la classe \var{EcranGraphique} qui nous a été donnée pour ce projet. Plus particulièrement, on appelle sa fonction \var{EcranGraphique.init}. On se sert pour cela de notre type agrégé \var{Demineur}. Ainsi, notre fenêtre de jeu s'adapte en fonction du nombre de lignes et de colonnes choisi par l'utilisateur tout en laissant de la place pour les instruction et le message de fin de partie.
 
 \begin{figure}[hpt]
@@ -122,15 +151,15 @@ Passons maintenant en revue tous les sous-problèmes qui composent un jeu tel qu
 \begin{lstlisting}
 static void initialiserFenetre(Demineur dem)
 {
-	dem.tailleX = 10 + dem.nc * (LARGEUR_CASE+1);
-	dem.tailleY = 10 + dem.nl * (HAUTEUR_CASE+1);
+	dem.tailleX = 10 + dem.nc * (TAILLE_CASE+1);
+	dem.tailleY = 10 + dem.nl * (TAILLE_CASE+1);
 	EcranGraphique.init(50, 50, dem.tailleX+390, dem.tailleY+110, dem.tailleX + 350, dem.tailleY + 30, "Demineur");
 	EcranGraphique.setClearColor(0, 0, 0);
 }
 \end{lstlisting}
 \end{figure} 
 
-\paragraph{Initialisation de la grille} Concernant ce problème, nous devions initialiser notre grille en prenant en compte le nombre de cases et de mines. Il fallait alors tirer aléatoirement les coordonnées des cases minées et compter le nombre de mines adjacentes aux cases de coordonnées $(x,y) \iff (colonne, ligne)$. Le type agrégé \var{Demineur} a donc été nécessaire. La fonction est assez longue car il nous a fallu prendre en compte tous les cas afin de compter les mines adjacentes dans toutes les directions sauf celles qui nous font sortir de la grille.
+\paragraph{Initialisation de la grille} Concernant ce problème, nous devions initialiser notre grille en prenant en compte le nombre de cases et de mines. Il fallait alors tirer aléatoirement les coordonnées de \emph{différentes} cases minées et compter le nombre de mines adjacentes aux cases de coordonnées $(x,y) \iff (colonne, ligne)$. Le type agrégé \var{Demineur} a donc été nécessaire. La fonction est assez longue car il nous a fallu prendre en compte tous les cas afin de compter les mines adjacentes dans toutes les directions sauf celles qui nous font sortir de la grille.
 
 \paragraph{Affichage} L'affichage de l'état du jeu est une partie très importante dans un jeu. En utilisant des fonctions simples, on peut construire une interface pratique pour l'utilisateur. Avec \var{EcranGraphique} et contrairement à une sortie console simple, on peut dessiner les formes dans n'importe quel ordre, tant qu'on indique la nouvelle couleur. Cela permet de regrouper dans des boucles le traçage de formes répétitives telles que les cases. Ces cases sont ici des bordures de rectangles placées côte à côte puis remplies soit avec une image de drapeau ou de mine, soit le cache bleu d'une case masquée, soit le nombre de mines adjacentes. Rien n'est écrit si ce nombre est nul. Le texte à côté est affiché assez simplement avec \var{EcranGraphique.drawString}.
 
@@ -140,43 +169,40 @@ Si aucune action n'est effectuée, la boucle de jeu continue et l'image est rafr
 	\center
 	\caption{\label{fig:fnAfficher} Fonction \var{afficher}}
 \begin{lstlisting}
-static void afficher(Demineur dem, Case [][] grille, int[][] imageFlag, int[][] imageMine, int[][] imageClk) 
+static void afficher(Demineur dem, Case [][] grille, int[][] imageFlag, int[][] imageMine, int[][] imageClk)
 {
-    EcranGraphique.clear();
-    EcranGraphique.setColor(0, 255, 0);
-    EcranGraphique.drawRect(4, 4, 1+(LARGEUR_CASE+1)*dem.nc, 1+(HAUTEUR_CASE+1)*dem.nl);
-    for(int l = 0; l < dem.nl; l++) {
-      for(int c = 0; c < dem.nc; c++) {
-        EcranGraphique.setColor(0, 255, 0);
-        EcranGraphique.drawRect(5+(LARGEUR_CASE+1)*c, 5+(HAUTEUR_CASE+1)*l, LARGEUR_CASE, HAUTEUR_CASE);
-        if (grille[c][l].visible) {
-          if (grille[c][l].contenu == MINE) {
-            // Draw image ou cercle rouge
-            EcranGraphique.drawImage(6+(LARGEUR_CASE+1)*c, 6+(HAUTEUR_CASE+1)*l, imageMine);
-          } else if (grille[c][l].contenu > 0) {
-            EcranGraphique.drawString(15+(LARGEUR_CASE+1)*c, 26+(HAUTEUR_CASE+1)*l, EcranGraphique.COLABA8x13, ""+grille[c][l].contenu);
-          }
-        } else if (grille[c][l].drapeau) {
-          /*EcranGraphique.setColor(240, 0, 0);
-          EcranGraphique.fillRect(6+(LARGEUR_CASE+1)*c, 6+(HAUTEUR_CASE+1)*l, LARGEUR_CASE-1, HAUTEUR_CASE-1);*/
-          EcranGraphique.drawImage(6+(LARGEUR_CASE+1)*c, 6+(HAUTEUR_CASE+1)*l, imageFlag);
-        } else { // Non visible, "cache" bleu
-          EcranGraphique.setColor(0, 0, 240);
-          EcranGraphique.fillRect(6+(LARGEUR_CASE+1)*c, 6+(HAUTEUR_CASE+1)*l, LARGEUR_CASE-1, HAUTEUR_CASE-1);
-        }
+  EcranGraphique.clear();
+  EcranGraphique.setColor(0, 255, 0);
+  EcranGraphique.drawRect(4, 4, 1+(TAILLE_CASE+1)*dem.nc, 1+(TAILLE_CASE+1)*dem.nl);
+  for(int l = 0; l < dem.nl; l++) {
+    for(int c = 0; c < dem.nc; c++) {
+      EcranGraphique.setColor(0, 255, 0);
+      EcranGraphique.drawRect(5+(TAILLE_CASE+1)*c, 5+(TAILLE_CASE+1)*l, TAILLE_CASE, TAILLE_CASE);
+      if (grille[c][l].visible) {
+        if (grille[c][l].contenu == MINE) {
+          EcranGraphique.drawImage(6+(TAILLE_CASE+1)*c, 6+(TAILLE_CASE+1)*l, imageMine);
+        } else if (grille[c][l].contenu > 0) {
+          EcranGraphique.drawString(15+(TAILLE_CASE+1)*c, 26+(TAILLE_CASE+1)*l, EcranGraphique.COLABA8x13, ""+grille[c][l].contenu);
+        } // "0" non affiches
+      } else if (grille[c][l].drapeau) {
+        EcranGraphique.drawImage(6+(TAILLE_CASE+1)*c, 6+(TAILLE_CASE+1)*l, imageFlag);
+      } else { // Non visible, "cache" bleu
+        EcranGraphique.setColor(0, 0, 240);
+        EcranGraphique.fillRect(6+(TAILLE_CASE+1)*c, 6+(TAILLE_CASE+1)*l, TAILLE_CASE-1, TAILLE_CASE-1);
       }
     }
-    EcranGraphique.setColor(0, 255, 0);
-    EcranGraphique.drawString(30 + dem.tailleX, 30, EcranGraphique.COLABA8x13, "JEU : DEMINEUR");
-    if (dem.tempsDebut == -1.0)
-      EcranGraphique.drawString(220 + dem.tailleX, 30, EcranGraphique.COLABA8x13, "Attente...");
-    else
-      EcranGraphique.drawString(220 + dem.tailleX, 30, EcranGraphique.COLABA8x13, Math.floor(((double)System.currentTimeMillis()/1000.0-dem.tempsDebut)*10)/10 + "s.");
-    EcranGraphique.drawString(30 + dem.tailleX, 70, EcranGraphique.COLABA8x13, "CLIC GAUCHE : LIBEREZ UNE CASE");
-    EcranGraphique.drawString(30 + dem.tailleX, 90, EcranGraphique.COLABA8x13, "CLIC DROIT : POSER UN DRAPEAU");
-    EcranGraphique.drawImage(180 + dem.tailleX, 10, imageClk);
-    EcranGraphique.flush();
- }
+  }
+  EcranGraphique.setColor(0, 255, 0);
+  EcranGraphique.drawString(30 + dem.tailleX, 30, EcranGraphique.COLABA8x13, "JEU : DEMINEUR");
+  if (dem.tempsDebut == -1.0)
+    EcranGraphique.drawString(220 + dem.tailleX, 30, EcranGraphique.COLABA8x13, "Attente...");
+  else
+    EcranGraphique.drawString(220 + dem.tailleX, 30, EcranGraphique.COLABA8x13, Math.floor(((double)System.currentTimeMillis()/1000.0-dem.tempsDebut)*10.0)/10.0 + "s.");
+  EcranGraphique.drawString(30 + dem.tailleX, 60, EcranGraphique.COLABA8x13, "CLIC GAUCHE : LIBEREZ UNE CASE");
+  EcranGraphique.drawString(30 + dem.tailleX, 80, EcranGraphique.COLABA8x13, "CLIC DROIT : POSER UN DRAPEAU");
+  EcranGraphique.drawImage(180 + dem.tailleX, 10, imageClk);
+  EcranGraphique.flush();
+}
 \end{lstlisting}
 \end{figure}
 
@@ -186,36 +212,32 @@ static void afficher(Demineur dem, Case [][] grille, int[][] imageFlag, int[][] 
 	\center
 	\caption{\label{fig:fnTraiterEntree} Fonction \var{traiterEntree}}
 \begin{lstlisting}
-static boolean traiterEntree(Demineur dem, Case [][] grille) {
+static boolean traiterEntree(Demineur dem, Case [][] grille)
+{
   if (EcranGraphique.getMouseState()!=2) {
     EcranGraphique.wait(10); // Ne pas surcharger le processeur
     return false;
   }
   // getMouseButton pour savoir si c'etait un clic gauche ou droit
   int clic = EcranGraphique.getMouseButton();
-  // getMouseX|Y pour la position
-  EcranGraphique.getMouseX();
-  EcranGraphique.getMouseY();
-  // faire le calcul qui determine la cellule cliquee (au mieux on evite les bordures)
-  int x = (EcranGraphique.getMouseX()-3)/(LARGEUR_CASE+1);
-  int y = (EcranGraphique.getMouseY()-3)/(HAUTEUR_CASE+1);
-  // si y'a un drapeau on empeche le clic gauche
+  // calcul qui determine la cellule cliquee (bordure incluse)
+  int x = (EcranGraphique.getMouseX()-5)/(TAILLE_CASE+1);
+  int y = (EcranGraphique.getMouseY()-5)/(TAILLE_CASE+1);
   if (x >= 0 && x < dem.nc && y >= 0 && y < dem.nl) {
     if (grille[x][y].drapeau) {
-      if (clic == 1) {
+      if (clic == 1) { // s'il y a un drapeau on empeche le clic gauche
         Ecran.afficherln("CLIC GAUCHE IMPOSSIBLE SUR UN DRAPEAU !");
         return false;
       }
-      // si clic droit, on inverse l'etat du drapeau
+      // si clic droit, on enleve drapeau
       else if (clic == 3) {
         grille[x][y].drapeau = false;
       }
-    }
-    else {
-      if (clic == 3) grille[x][y].drapeau = true;
-    }
-    // si on peut decouvrir la case, appeler decouvrirCase
-    if (clic == 1 && !grille[x][y].drapeau) {
+    } // s'il n'y a pas de drapeau et qu'on fait un clic droit
+    else if (clic == 3) {
+      grille[x][y].drapeau = true;
+    } // si on peut decouvrir la case
+    else if (clic == 1) {
       decouvrirCase(dem, grille, x, y);
     }
     return true;
@@ -235,13 +257,6 @@ La fonction va d'abord analyser toutes les cases pour savoir si toutes les cases
 	\center
 	\caption{\label{fig:fnStatut} Fonction \var{statutGrille}}
 \begin{lstlisting}
-// Statuts de la grille (en haut du programme)
-final static int JOUABLE = 0;
-final static int GAGNEE = 1;
-final static int PERDUE = 2;
-
-// Plus loin dans le code
-
 static int statutGrille(Demineur dem, Case [][] grille) {
   boolean aMineDecouverte = false, aCasePasDecouverte = false;
   int c=0, l=0, nbMinesMarquees = 0;

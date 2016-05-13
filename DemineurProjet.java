@@ -1,9 +1,8 @@
 // Développeurs : Alexis Cabodi et Mohamed Lakhal du Groupe 5 (I4-CMI) Sujet 4 
 public class DemineurProjet {
-  // Constantes pour la lisibilité
-  final static int MINE = -1;
-  final static int LARGEUR_CASE = 29; // 29 pixels plus 2 de bordure
-  final static int HAUTEUR_CASE = 29;
+  // Constantes pour la lisibilité et la compréhension
+  final static int MINE = -1; // Valeur arbitraire pour indiquer qu'une case contient une mine
+  final static int TAILLE_CASE = 29; // EcranGraphique rajoutera un pixel de bordure à droite
   // Statuts de la grille
   final static int JOUABLE = 0;
   final static int GAGNEE = 1;
@@ -45,8 +44,8 @@ public class DemineurProjet {
    * @param dem Structure contenant nc et nl et qui recevra tailleX et tailleY
    */
   static void initialiserFenetre(Demineur dem) {
-    dem.tailleX = 10 + dem.nc * (LARGEUR_CASE+1);
-    dem.tailleY = 10 + dem.nl * (HAUTEUR_CASE+1);
+    dem.tailleX = 10 + dem.nc * (TAILLE_CASE+1);
+    dem.tailleY = 10 + dem.nl * (TAILLE_CASE+1);
     EcranGraphique.init(50, 50, dem.tailleX+390, dem.tailleY+110, dem.tailleX + 350, dem.tailleY + 30, "Démineur");
     EcranGraphique.setClearColor(0, 0, 0);
   }
@@ -163,22 +162,22 @@ public class DemineurProjet {
   static void afficher(Demineur dem, Case [][] grille, int[][] imageFlag, int[][] imageMine, int[][] imageClk) {
     EcranGraphique.clear();
     EcranGraphique.setColor(0, 255, 0);
-    EcranGraphique.drawRect(4, 4, 1+(LARGEUR_CASE+1)*dem.nc, 1+(HAUTEUR_CASE+1)*dem.nl);
+    EcranGraphique.drawRect(4, 4, 1+(TAILLE_CASE+1)*dem.nc, 1+(TAILLE_CASE+1)*dem.nl);
     for(int l = 0; l < dem.nl; l++) {
       for(int c = 0; c < dem.nc; c++) {
         EcranGraphique.setColor(0, 255, 0);
-        EcranGraphique.drawRect(5+(LARGEUR_CASE+1)*c, 5+(HAUTEUR_CASE+1)*l, LARGEUR_CASE, HAUTEUR_CASE);
+        EcranGraphique.drawRect(5+(TAILLE_CASE+1)*c, 5+(TAILLE_CASE+1)*l, TAILLE_CASE, TAILLE_CASE);
         if (grille[c][l].visible) {
           if (grille[c][l].contenu == MINE) {
-            EcranGraphique.drawImage(6+(LARGEUR_CASE+1)*c, 6+(HAUTEUR_CASE+1)*l, imageMine);
+            EcranGraphique.drawImage(6+(TAILLE_CASE+1)*c, 6+(TAILLE_CASE+1)*l, imageMine);
           } else if (grille[c][l].contenu > 0) {
-            EcranGraphique.drawString(15+(LARGEUR_CASE+1)*c, 26+(HAUTEUR_CASE+1)*l, EcranGraphique.COLABA8x13, ""+grille[c][l].contenu);
+            EcranGraphique.drawString(15+(TAILLE_CASE+1)*c, 26+(TAILLE_CASE+1)*l, EcranGraphique.COLABA8x13, ""+grille[c][l].contenu);
           } // "0" non affichés
         } else if (grille[c][l].drapeau) {
-          EcranGraphique.drawImage(6+(LARGEUR_CASE+1)*c, 6+(HAUTEUR_CASE+1)*l, imageFlag);
+          EcranGraphique.drawImage(6+(TAILLE_CASE+1)*c, 6+(TAILLE_CASE+1)*l, imageFlag);
         } else { // Non visible, "cache" bleu
           EcranGraphique.setColor(0, 0, 240);
-          EcranGraphique.fillRect(6+(LARGEUR_CASE+1)*c, 6+(HAUTEUR_CASE+1)*l, LARGEUR_CASE-1, HAUTEUR_CASE-1);
+          EcranGraphique.fillRect(6+(TAILLE_CASE+1)*c, 6+(TAILLE_CASE+1)*l, TAILLE_CASE-1, TAILLE_CASE-1);
         }
       }
     }
@@ -210,8 +209,8 @@ public class DemineurProjet {
     // getMouseButton pour savoir si c'était un clic gauche ou droit
     int clic = EcranGraphique.getMouseButton();
     // calcul qui détermine la cellule cliquée (bordure incluse)
-    int x = (EcranGraphique.getMouseX()-5)/(LARGEUR_CASE+1);
-    int y = (EcranGraphique.getMouseY()-5)/(HAUTEUR_CASE+1);
+    int x = (EcranGraphique.getMouseX()-5)/(TAILLE_CASE+1);
+    int y = (EcranGraphique.getMouseY()-5)/(TAILLE_CASE+1);
     if (x >= 0 && x < dem.nc && y >= 0 && y < dem.nl) {
       if (grille[x][y].drapeau) {
         if (clic == 1) { // s'il y a un drapeau on empêche le clic gauche
