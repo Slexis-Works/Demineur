@@ -2,7 +2,7 @@
 public class DemineurProjet {
   // Constantes pour la lisibilité et la compréhension
   final static int MINE = -1; // Valeur arbitraire pour indiquer qu'une case contient une mine
-  final static int TAILLE_CASE = 29; // EcranGraphique rajoutera un pixel de bordure à droite
+  final static int TAILLE_CASE = 29; // EcranGraphique rajoutera un pixel de bordure à droite et en bas
   // Statuts de la grille
   final static int JOUABLE = 0;
   final static int GAGNEE = 1;
